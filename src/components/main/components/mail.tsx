@@ -56,6 +56,7 @@ export function Mail({
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
+  const [title, setTitle] = React.useState("Chats");
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [mail] = useMail();
 
@@ -108,18 +109,7 @@ export function Mail({
               {
                 title: "JersApp",
                 label: "",
-                icon: () => (
-                  <Avatar>
-                    <AvatarImage alt={"JersApp"} />
-                    <AvatarFallback>
-                      {/* {mail.name
-                  .split(" ")
-                  .map((chunk) => chunk[0])
-                  .join("")} */}
-                      Jers
-                    </AvatarFallback>
-                  </Avatar>
-                ),
+                icon: MessageCircle,
                 variant: "ghost",
               },
             ]}
@@ -153,6 +143,8 @@ export function Mail({
                 variant: "ghost",
               },
             ]}
+            setTitle={setTitle}
+            title={title}
           />
           <Separator />
           <Nav
@@ -170,9 +162,9 @@ export function Mail({
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
           <Tabs defaultValue="all">
-            <div className="flex items-center px-4 py-2">
-              <h1 className="text-xl font-bold">Inbox</h1>
-              <TabsList className="ml-auto">
+            <div className="flex items-center px-4 py-3">
+              <h1 className="text-xl font-bold">{title}</h1>
+              {/* <TabsList className="ml-auto">
                 <TabsTrigger
                   value="all"
                   className="text-zinc-600 dark:text-zinc-200"
@@ -185,7 +177,7 @@ export function Mail({
                 >
                   Unread
                 </TabsTrigger>
-              </TabsList>
+              </TabsList> */}
             </div>
             <Separator />
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">

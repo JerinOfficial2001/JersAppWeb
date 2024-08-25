@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  .dark {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -31,7 +31,7 @@
     --chart-5: 27 87% 67%;
   }
 
-  .dark {
+  :root {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -65,5 +65,22 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.float {
+  position: relative;
+  animation: animate 3s infinite;
+}
+
+@keyframes animate {
+  0% {
+    bottom: 0;
+  }
+  50% {
+    bottom: 15px;
+  }
+  100% {
+    bottom: 0;
   }
 }

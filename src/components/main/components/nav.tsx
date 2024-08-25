@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 interface NavProps {
   isCollapsed: boolean;
@@ -19,9 +19,11 @@ interface NavProps {
     icon: LucideIcon | React.JSX.Element;
     variant: "default" | "ghost";
   }[];
+  setTitle?: any;
+  title?: string;
 }
 
-export function Nav({ links, isCollapsed }: NavProps) {
+export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
   return (
     <div
       data-collapsed={isCollapsed}
@@ -32,10 +34,19 @@ export function Nav({ links, isCollapsed }: NavProps) {
           isCollapsed ? (
             <Tooltip key={index} delayDuration={0}>
               <TooltipTrigger asChild>
-                <Link
-                  href="#"
+                <div
+                  onClick={
+                    setTitle
+                      ? () => {
+                          setTitle(link.title);
+                        }
+                      : undefined
+                  }
                   className={cn(
-                    buttonVariants({ variant: link.variant, size: "icon" }),
+                    buttonVariants({
+                      variant: link.title == title ? "default" : "ghost",
+                      size: "icon",
+                    }),
                     "h-9 w-9",
                     link.variant === "default" &&
                       "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
@@ -43,7 +54,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                 >
                   <link.icon className="h-4 w-4" />
                   <span className="sr-only">{link.title}</span>
-                </Link>
+                </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="flex items-center gap-4">
                 {link.title}
@@ -55,11 +66,20 @@ export function Nav({ links, isCollapsed }: NavProps) {
               </TooltipContent>
             </Tooltip>
           ) : (
-            <Link
+            <div
+              onClick={
+                setTitle
+                  ? () => {
+                      setTitle(link.title);
+                    }
+                  : undefined
+              }
               key={index}
-              href="#"
               className={cn(
-                buttonVariants({ variant: link.variant, size: "sm" }),
+                buttonVariants({
+                  variant: link.title == title ? "default" : "ghost",
+                  size: "sm",
+                }),
                 link.variant === "default" &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
                 "justify-start"
@@ -78,7 +98,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                   {link.label}
                 </span>
               )}
-            </Link>
+            </div>
           )
         )}
       </nav>

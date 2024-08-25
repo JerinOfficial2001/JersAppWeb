@@ -4,9 +4,11 @@ import {
   Clock,
   Forward,
   MoreVertical,
+  PhoneCall,
   Reply,
   ReplyAll,
   Trash2,
+  Video,
 } from "lucide-react";
 
 import {
@@ -36,6 +38,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Mail } from "../data";
 import { addDays, addHours, format, nextSaturday } from "date-fns";
+import Bubble from "@/components/chatComponents/Bubble";
 
 interface MailDisplayProps {
   mail: Mail | null;
@@ -48,35 +51,8 @@ export function MailDisplay({ mail }: MailDisplayProps) {
     <div className="flex h-full flex-col">
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
-                <Archive className="h-4 w-4" />
-                <span className="sr-only">Archive</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Archive</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
-                <ArchiveX className="h-4 w-4" />
-                <span className="sr-only">Move to junk</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Move to junk</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
-                <Trash2 className="h-4 w-4" />
-                <span className="sr-only">Move to trash</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Move to trash</TooltipContent>
-          </Tooltip>
-          <Separator orientation="vertical" className="mx-1 h-6" />
-          <Tooltip>
+          {/* <Separator orientation="vertical" className="mx-1 h-6" /> */}
+          {/* <Tooltip>
             <Popover>
               <PopoverTrigger asChild>
                 <TooltipTrigger asChild>
@@ -134,35 +110,35 @@ export function MailDisplay({ mail }: MailDisplayProps) {
               </PopoverContent>
             </Popover>
             <TooltipContent>Snooze</TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
         </div>
         <div className="ml-auto flex items-center gap-2">
+          {/* <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={!mail}>
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Delete</TooltipContent>
+          </Tooltip> */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" disabled={!mail}>
-                <Reply className="h-4 w-4" />
-                <span className="sr-only">Reply</span>
+                <PhoneCall className="h-4 w-4" />
+                <span className="sr-only">Audio Call</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Reply</TooltipContent>
+            <TooltipContent>Audio Call</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" disabled={!mail}>
-                <ReplyAll className="h-4 w-4" />
-                <span className="sr-only">Reply all</span>
+                <Video className="h-4 w-4" />
+                <span className="sr-only">Video Call</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Reply all</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
-                <Forward className="h-4 w-4" />
-                <span className="sr-only">Forward</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Forward</TooltipContent>
+            <TooltipContent>Video Call</TooltipContent>
           </Tooltip>
         </div>
         <Separator orientation="vertical" className="mx-2 h-6" />
@@ -197,9 +173,8 @@ export function MailDisplay({ mail }: MailDisplayProps) {
               </Avatar>
               <div className="grid gap-1">
                 <div className="font-semibold">{mail.name}</div>
-                <div className="line-clamp-1 text-xs">{mail.subject}</div>
-                <div className="line-clamp-1 text-xs">
-                  <span className="font-medium">Reply-To:</span> {mail.email}
+                <div className="line-clamp-1 text-xs cursor-pointer">
+                  View Profile
                 </div>
               </div>
             </div>
@@ -210,8 +185,8 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             )}
           </div>
           <Separator />
-          <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
-            {mail.text}
+          <div className="p-4 text-sm overflow-y-auto h-[65vh]">
+            <Bubble text={mail.text} name={mail.name} />
           </div>
           <Separator className="mt-auto" />
           <div className="p-4">
