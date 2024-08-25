@@ -36,6 +36,7 @@ import { useMail } from "../use-mail";
 import { Nav } from "./nav";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useGlobalContext } from "@/utils/globalContext";
 
 interface MailProps {
   accounts: {
@@ -59,7 +60,7 @@ export function Mail({
   const [title, setTitle] = React.useState("Chats");
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [mail] = useMail();
-
+  const { Groups, Contacts, Chats } = useGlobalContext();
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
@@ -120,13 +121,13 @@ export function Mail({
             links={[
               {
                 title: "Chats",
-                label: "128",
+                label: Chats?.length > 0 ? Chats?.length : "",
                 icon: MessageCircle,
                 variant: "default",
               },
               {
                 title: "Groups",
-                label: "9",
+                label: Groups?.length > 0 ? Groups?.length : "",
                 icon: UsersRound,
                 variant: "ghost",
               },
@@ -138,7 +139,7 @@ export function Mail({
               },
               {
                 title: "Contacts",
-                label: "",
+                label: Contacts?.length > 0 ? Contacts?.length : "",
                 icon: UserRoundPlus,
                 variant: "ghost",
               },

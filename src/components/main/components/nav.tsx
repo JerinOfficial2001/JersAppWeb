@@ -47,7 +47,7 @@ export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
                       variant: link.title == title ? "default" : "ghost",
                       size: "icon",
                     }),
-                    "h-9 w-9",
+                    "h-9 w-9 rounded-[10px]",
                     link.variant === "default" &&
                       "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
                   )}
@@ -82,7 +82,7 @@ export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
                 }),
                 link.variant === "default" &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
-                "justify-start"
+                "justify-start rounded-[10px]"
               )}
             >
               <link.icon className="mr-2 h-4 w-4" />

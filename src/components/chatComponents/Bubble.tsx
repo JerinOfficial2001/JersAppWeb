@@ -30,7 +30,7 @@ export default function Bubble({ text, name }: Props) {
         id="dropdownMenuIconButton"
         data-dropdown-toggle="dropdownDots"
         data-dropdown-placement="bottom-start"
-        className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:ring-gray-600"
+        className="rounded-[10px] inline-flex self-center items-center p-2 text-sm font-medium text-center text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:ring-gray-600"
         type="button"
       >
         <svg

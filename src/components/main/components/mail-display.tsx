@@ -7,6 +7,7 @@ import {
   PhoneCall,
   Reply,
   ReplyAll,
+  Send,
   Trash2,
   Video,
 } from "lucide-react";
@@ -159,7 +160,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
       </div>
       <Separator />
       {mail ? (
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-y-auto max-h-[100vh]">
           <div className="flex items-start p-4">
             <div className="flex items-start gap-4 text-sm">
               <Avatar>
@@ -185,15 +186,15 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             )}
           </div>
           <Separator />
-          <div className="p-4 text-sm overflow-y-auto h-[65vh]">
+          <div className="p-4 text-sm overflow-y-auto max-h-[65vh]">
             <Bubble text={mail.text} name={mail.name} />
           </div>
           <Separator className="mt-auto" />
-          <div className="p-4">
+          <div className="p-4 ">
             <form>
-              <div className="grid gap-4">
+              <div className="grid gap-4 ">
                 <Textarea
-                  className="p-4"
+                  className="p-4 rounded-[10px]"
                   placeholder={`Reply ${mail.name}...`}
                 />
                 <div className="flex items-center">
@@ -207,9 +208,9 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                   <Button
                     onClick={(e) => e.preventDefault()}
                     size="sm"
-                    className="ml-auto"
+                    className="ml-auto rounded-[10px] flex gap-1"
                   >
-                    Send
+                    <Send className="h-[20px]" /> Send
                   </Button>
                 </div>
               </div>
