@@ -5,6 +5,7 @@ import SocketProvider from "./socket";
 import { useRouter } from "next/navigation";
 import { GET_LOCAL_STORAGE } from "./EncryptedCookies";
 import GlobalContextProvider from "./globalContext";
+import useWindowWidth from "@/hooks/windowData";
 
 type Props = {
   children: any;
@@ -20,6 +21,14 @@ export default function Providers({ children }: Props) {
       router.push("/");
     }
   }, []);
+  const windowWidth = useWindowWidth();
+
+  // Redirect to home page if the window width is below 778px
+  useEffect(() => {
+    if (windowWidth < 778) {
+      router.push("/");
+    }
+  }, [windowWidth, router]);
   return (
     <SocketProvider>
       <QueryClientProvider client={queryClient}>

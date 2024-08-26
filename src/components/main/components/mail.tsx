@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Cookies from "js-cookie";
 import {
   MessageCircle,
   Archive,
@@ -60,7 +61,9 @@ export function Mail({
   const [title, setTitle] = React.useState("Chats");
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [mail] = useMail();
-  const { Groups, Contacts, Chats } = useGlobalContext();
+  const { Groups, Contacts, Chats, handleSelectID, configs, data } =
+    useGlobalContext();
+
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup
@@ -153,11 +156,17 @@ export function Mail({
             links={[
               {
                 title: "Logout",
-                label: "972",
+                label: "",
                 icon: LogOut,
                 variant: "ghost",
               },
             ]}
+            onClick={() => {
+              console.log("clicked");
+
+              Cookies.remove("JersApp_userData");
+              window.location.href = "/";
+            }}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
@@ -190,17 +199,22 @@ export function Mail({
               </form>
             </div>
             <TabsContent value="all" className="m-0">
-              <MailList items={mails} />
+              <MailList items={data} title={title} />
             </TabsContent>
             <TabsContent value="unread" className="m-0">
-              <MailList items={mails.filter((item) => !item.read)} />
+              <MailList
+                title={title}
+                items={data?.filter((item: any) => !item?.read)}
+              />
             </TabsContent>
           </Tabs>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
           <MailDisplay
-            mail={mails.find((item) => item.id === mail.selected) || null}
+            mail={
+              data?.find((item: any) => item._id === configs?.selected) || null
+            }
           />
         </ResizablePanel>
       </ResizablePanelGroup>

@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { useGlobalContext } from "@/utils/globalContext";
 
 interface NavProps {
   isCollapsed: boolean;
@@ -21,13 +22,21 @@ interface NavProps {
   }[];
   setTitle?: any;
   title?: string;
+  onClick?: any;
 }
 
-export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
+export function Nav({
+  links,
+  isCollapsed,
+  setTitle,
+  title,
+  onClick,
+}: NavProps) {
+  const { handleSelectData } = useGlobalContext();
   return (
     <div
       data-collapsed={isCollapsed}
-      className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
+      className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2 cursor-pointer"
     >
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
         {links.map((link: any, index) =>
@@ -39,7 +48,10 @@ export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
                     setTitle
                       ? () => {
                           setTitle(link.title);
+                          handleSelectData(link.title);
                         }
+                      : onClick
+                      ? onClick
                       : undefined
                   }
                   className={cn(
@@ -52,8 +64,8 @@ export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
                       "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
                   )}
                 >
-                  <link.icon className="h-4 w-4" />
-                  <span className="sr-only">{link.title}</span>
+                  <link.icon className="h-4 w-4 " />
+                  <span className="sr-only cursor-pointer">{link.title}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="flex items-center gap-4">
@@ -71,7 +83,10 @@ export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
                 setTitle
                   ? () => {
                       setTitle(link.title);
+                      handleSelectData(link.title);
                     }
+                  : onClick
+                  ? onClick
                   : undefined
               }
               key={index}
@@ -82,7 +97,7 @@ export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
                 }),
                 link.variant === "default" &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
-                "justify-start rounded-[10px]"
+                "justify-start rounded-[10px] cursor-pointer"
               )}
             >
               <link.icon className="mr-2 h-4 w-4" />
@@ -92,7 +107,7 @@ export function Nav({ links, isCollapsed, setTitle, title }: NavProps) {
                   className={cn(
                     "ml-auto",
                     link.variant === "default" &&
-                      "text-background dark:text-white"
+                      "text-background dark:text-white "
                   )}
                 >
                   {link.label}

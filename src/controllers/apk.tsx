@@ -1,5 +1,7 @@
 import { DownloadAPK_API } from "@/api";
 import { GET_Apk } from "@/services/requests";
+import { error } from "console";
+import toast from "react-hot-toast";
 
 export const getAPK = async () => {
   try {
@@ -9,10 +11,12 @@ export const getAPK = async () => {
     if (data && data.status == "ok") {
       return data.data;
     } else {
-      console.log(data.message);
+      toast.error(data.message);
+      return null;
     }
   } catch (error) {
     console.log(error);
   }
 };
-export const DownloadAPK_URL = `${DownloadAPK_API}/Projects/downloadapk/66a236923d1be4bf9e95aacf`;
+// export const DownloadAPK_URL = `http://localhost:4000/portfolio/Projects/downloadapk`;
+export const DownloadAPK_URL = `${DownloadAPK_API}/Projects/downloadapk`;

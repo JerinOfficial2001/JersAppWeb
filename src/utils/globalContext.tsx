@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
 import { queryClient } from "./providers";
 import { GET_LOCAL_STORAGE } from "./EncryptedCookies";
+import { useChat, useContact, useGroup } from "@/hooks/useData";
 
 const GlobalContext = createContext({});
 export const useGlobalContext = () => {
@@ -94,6 +95,57 @@ export default function GlobalContextProvider({ children }: any) {
       }
     },
   });
+  const [data, setdata] = useState<any>(Chats);
+  const [chatConfig, setChatConfig] = useChat();
+  const [contactConfig, setContactConfig] = useContact();
+  const [groupConfig, setGroupConfig] = useGroup();
+  const [configs, setconfigs] = useState<any>(null);
+
+  const handleChatSelect = (chatId: string) => {
+    setChatConfig({ selected: chatId });
+  };
+  const handleContactSelect = (ContactId: string) => {
+    setContactConfig({ selected: ContactId });
+  };
+  const handleGroupSelect = (GroupId: string) => {
+    setGroupConfig({ selected: GroupId });
+  };
+  const handleSelectID = (id: string, name: string) => {
+    switch (name) {
+      case "Chats":
+        handleChatSelect(id);
+        setconfigs(chatConfig);
+        break;
+      case "Contacts":
+        handleContactSelect(id);
+        setconfigs(contactConfig);
+
+        break;
+      case "Groups":
+        handleGroupSelect(id);
+        setconfigs(groupConfig);
+        break;
+      default:
+        handleChatSelect(id);
+        setconfigs(chatConfig);
+    }
+  };
+  const handleSelectData = (name: string) => {
+    switch (name) {
+      case "Chats":
+        setdata(Chats);
+        break;
+      case "Contacts":
+        setdata(Contacts);
+
+        break;
+      case "Groups":
+        setdata(Groups);
+        break;
+      default:
+        setdata(Chats);
+    }
+  };
 
   return (
     <GlobalContext.Provider
@@ -112,6 +164,10 @@ export default function GlobalContextProvider({ children }: any) {
         refetchGroups,
         refetchChats,
         refetchContacts,
+        handleSelectID,
+        configs,
+        handleSelectData,
+        data,
       }}
     >
       {children}

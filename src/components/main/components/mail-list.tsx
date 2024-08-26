@@ -9,40 +9,43 @@ import { Mail } from "../data";
 import { useMail } from "../use-mail";
 import { formatDistanceToNow } from "date-fns";
 import AvatarIcon from "@/components/chatComponents/AvatarIcon";
+import { useGlobalContext } from "@/utils/globalContext";
 
 interface MailListProps {
-  items: Mail[];
+  items: [];
   isChip?: boolean;
+  title: string;
 }
 
-export function MailList({ items, isChip }: MailListProps) {
+export function MailList({ items, isChip, title }: MailListProps) {
   const [mail, setMail] = useMail();
+  const { handleSelectID, configs } = useGlobalContext();
 
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0 pb-[100px]">
-        {items.map((item) => (
+        {items?.map((item: any) => (
           <button
-            key={item.id}
+            key={item._id}
             className={cn(
               "flex flex-row items-start gap-2 rounded-[10px] border p-3 text-left text-sm transition-all hover:bg-accent",
-              mail.selected === item.id && "bg-muted"
+              configs?.selected === item._id && "bg-muted"
             )}
-            onClick={() =>
-              setMail({
-                ...mail,
-                selected: item.id,
-              })
-            }
+            onClick={() => handleSelectID(item._id, title)}
           >
             <div className="flex flex-row gap-2 w-full">
-              <AvatarIcon name={item.name} />
+              <AvatarIcon
+                name={item.name}
+                src={item.image ? item.image.url : ""}
+              />
 
               <div className="flex flex-col w-full items-start gap-2 rounded-lg  text-left text-sm transition-all">
                 <div className="flex w-full flex-col gap-1">
                   <div className="flex items-center">
                     <div className="flex items-center gap-2">
-                      <div className="font-semibold">{item.name}</div>
+                      <div className="font-semibold">
+                        {item.given_name ? item.given_name : item.phone}
+                      </div>
                       {!item.read && (
                         <span className="flex h-2 w-2 rounded-full bg-blue-600" />
                       )}
@@ -50,12 +53,12 @@ export function MailList({ items, isChip }: MailListProps) {
                     <div
                       className={cn(
                         "ml-auto text-xs",
-                        mail.selected === item.id
+                        configs?.selected === item._id
                           ? "text-foreground"
                           : "text-muted-foreground"
                       )}
                     >
-                      {formatDistanceToNow(new Date(item.date), {
+                      {formatDistanceToNow(new Date(item.createdAt), {
                         addSuffix: true,
                       })}
                     </div>
@@ -63,9 +66,13 @@ export function MailList({ items, isChip }: MailListProps) {
                 </div>
                 <div className="flex justify-between align center w-[100%]">
                   <div className="flex gap-1 flex-row align-center ">
-                    <div className="text-xs font-medium">{item.subject} :</div>
+                    <div className="text-xs font-medium">
+                      {title == "Contacts"
+                        ? "+91 " + item.phone
+                        : item.lastMsg?.name}
+                    </div>
                     <div className="line-clamp-1 text-xs text-muted-foreground">
-                      {item.text.substring(0, 60)}
+                      {item.lastmsg?.msg.substring(0, 60)}
                     </div>
                   </div>
                   {/* {item.labels.length ? (
