@@ -5,6 +5,7 @@ import {
   Forward,
   MoreVertical,
   PhoneCall,
+  RefreshCw,
   Reply,
   ReplyAll,
   Send,
@@ -40,18 +41,115 @@ import {
 import { Mail } from "../data";
 import { addDays, addHours, format, nextSaturday } from "date-fns";
 import Bubble from "@/components/chatComponents/Bubble";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getMessage } from "@/controllers/chat";
+import Loader from "@/components/chatComponents/Loader";
+import { useEffect, useRef, useState } from "react";
+import { getTime, groupMessagesByDate } from "@/utils/Date&Time";
+import { useSocket } from "@/utils/socket";
+import { GET_UserData } from "@/utils/EncryptedCookies";
+import { sendMsg } from "@/controllers/messages";
+import { queryClient } from "@/utils/providers";
+import toast from "react-hot-toast";
 
 interface MailDisplayProps {
   mail: any;
 }
 
 export function MailDisplay({ mail }: MailDisplayProps) {
+  const userData = GET_UserData();
+  const [inputData, setinputData] = useState("");
+  const chatID = [userData?._id, mail?.user_id].sort().join("_");
   const today = new Date();
+  const { handleSendMsg, socketRommID } = useSocket();
+  const scrollRef = useRef<any>();
+  const {
+    data: messages,
+    isLoading: messagesLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["message"],
+    queryFn: () => getMessage(mail.user_id),
+  });
+  const { mutate: SendMsg, isPending: sending } = useMutation({
+    mutationFn: sendMsg,
+    onSuccess: (data: any) => {
+      if (data && data.status == "ok") {
+        handleSendMsg({
+          chatID: chatID,
+          sender: userData._id,
+          receiver: mail._id,
+          message: inputData,
+          name: userData.name,
+        });
+        queryClient.invalidateQueries({ queryKey: ["message"] });
+      } else {
+        toast.error("Send Message failed");
+      }
+    },
+  });
+  useEffect(() => {
+    if (mail) {
+      refetch();
+    }
+    if (chatID) socketRommID(chatID);
+  }, [mail]);
+  useEffect(() => {
+    if (scrollRef && scrollRef?.current) {
+      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages?.length]);
+  const groupedMessages = groupMessagesByDate(
+    messages?.map((elem: any) => ({ ...elem, time: getTime(elem.createdAt) }))
+  );
+  const sections = groupedMessages
+    ? Object.keys(groupedMessages).map((date) => ({
+        title: date,
+        data: groupedMessages[date],
+      }))
+    : [];
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    if (inputData != "") {
+      SendMsg({
+        chatID: chatID,
+        sender: userData._id,
+        receiver: mail.user_id,
+        message: inputData,
+        name: userData.name,
+      });
 
+      setinputData("");
+    }
+  };
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
+          {mail && (
+            <div className="flex items-start gap-4 text-sm">
+              <Avatar>
+                <AvatarImage
+                  alt={mail.name}
+                  src={mail.image ? mail.image.url : ""}
+                />
+                <AvatarFallback>
+                  {mail.name
+                    .split(" ")
+                    .map((chunk: any) => chunk[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid gap-1">
+                <div className="font-semibold">
+                  {mail.given_name ? mail.given_name : mail.phone}
+                </div>
+                <div className="line-clamp-1 text-xs cursor-pointer">
+                  View Profile
+                </div>
+              </div>
+            </div>
+          )}
           {/* <Separator orientation="vertical" className="mx-1 h-6" /> */}
           {/* <Tooltip>
             <Popover>
@@ -161,48 +259,47 @@ export function MailDisplay({ mail }: MailDisplayProps) {
       <Separator />
       {mail ? (
         <div className="flex flex-1 flex-col overflow-y-auto max-h-[100vh]">
-          <div className="flex items-start p-4">
-            <div className="flex items-start gap-4 text-sm">
-              <Avatar>
-                <AvatarImage
-                  alt={mail.name}
-                  src={mail.image ? mail.image.url : ""}
-                />
-                <AvatarFallback>
-                  {mail.name
-                    .split(" ")
-                    .map((chunk: any) => chunk[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid gap-1">
-                <div className="font-semibold">
-                  {mail.given_name ? mail.given_name : mail.phone}
-                </div>
-                <div className="line-clamp-1 text-xs cursor-pointer">
-                  View Profile
-                </div>
-              </div>
+          {messagesLoading ? (
+            <Loader />
+          ) : messages?.length > 0 ? (
+            <div className="p-4 text-sm overflow-y-auto max-h-[77vh] chatContainer">
+              {sections.map((data: any, index: number) => {
+                return (
+                  <div key={index}>
+                    <div className="w-[100%] flex flex-col gap-1 justify-center items-center mb-2">
+                      <h2 className="text-[#787878] font-bold">{data.title}</h2>
+                    </div>
+                    {data?.data.map((elem: any, msgIndex: number) => {
+                      return (
+                        <Bubble
+                          key={msgIndex}
+                          text={elem.message}
+                          name={elem.given_name ? elem.given_name : elem.phone}
+                          src={elem.image ? elem.image.url : ""}
+                          id={elem.sender}
+                          time={elem.time}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })}
+              <div ref={scrollRef} />
             </div>
-            {mail.createdAt && (
-              <div className="ml-auto text-xs text-muted-foreground">
-                {format(new Date(mail.createdAt), "PPpp")}
-              </div>
-            )}
-          </div>
-          <Separator />
-          <div className="p-4 text-sm overflow-y-auto max-h-[65vh]">
-            <Bubble
-              text={mail.text}
-              name={mail.given_name ? mail.given_name : mail.phone}
-              src={mail.image ? mail.image.url : ""}
-            />
-          </div>
+          ) : (
+            <div className="h-[100%] p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+              No messages
+            </div>
+          )}
           <Separator className="mt-auto" />
           <div className="p-4 ">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="grid gap-4 ">
                 <Textarea
+                  value={inputData}
+                  onChange={(e) => {
+                    setinputData(e.target.value);
+                  }}
                   className="p-4 rounded-[10px]"
                   placeholder={`Reply ${
                     mail.given_name ? mail.given_name : mail.phone
@@ -217,11 +314,16 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                     thread
                   </Label>
                   <Button
-                    onClick={(e) => e.preventDefault()}
+                    type="submit"
                     size="sm"
                     className="ml-auto rounded-[10px] flex gap-1"
                   >
-                    <Send className="h-[20px]" /> Send
+                    {sending ? (
+                      <RefreshCw className="h-[20px] loadingBtn" />
+                    ) : (
+                      <Send className="h-[20px]" />
+                    )}{" "}
+                    Send
                   </Button>
                 </div>
               </div>
@@ -229,8 +331,8 @@ export function MailDisplay({ mail }: MailDisplayProps) {
           </div>
         </div>
       ) : (
-        <div className="p-8 text-center text-muted-foreground">
-          No message selected
+        <div className="h-[600px] p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+          No chat selected
         </div>
       )}
     </div>

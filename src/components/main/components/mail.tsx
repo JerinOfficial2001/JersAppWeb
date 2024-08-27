@@ -38,6 +38,8 @@ import { Nav } from "./nav";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGlobalContext } from "@/utils/globalContext";
+import AvatarIcon from "@/components/chatComponents/AvatarIcon";
+import Image from "next/image";
 
 interface MailProps {
   accounts: {
@@ -61,8 +63,7 @@ export function Mail({
   const [title, setTitle] = React.useState("Chats");
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [mail] = useMail();
-  const { Groups, Contacts, Chats, handleSelectID, configs, data } =
-    useGlobalContext();
+  const { Groups, Contacts, Chats, configs, data } = useGlobalContext();
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -107,7 +108,7 @@ export function Mail({
             <AccountSwitcher isCollapsed={isCollapsed} accounts={accounts} />
           </div> */}
 
-          <Nav
+          {/* <Nav
             isCollapsed={isCollapsed}
             links={[
               {
@@ -117,7 +118,17 @@ export function Mail({
                 variant: "ghost",
               },
             ]}
-          />
+          /> */}
+          <div className="p-2 flex items-center justify-center ">
+            {isCollapsed ? (
+              <AvatarIcon src={"/JersApp Icon.png"} name="JersApp" />
+            ) : (
+              <Image alt="JersApp" src={"/Logo.png"} height="100" width="100" />
+            )}
+            {/* {!isCollapsed && (
+              <p className="font-bold text-[25px] text-[#4954ec]">ersApp</p>
+            )} */}
+          </div>
           <Separator />
           <Nav
             isCollapsed={isCollapsed}

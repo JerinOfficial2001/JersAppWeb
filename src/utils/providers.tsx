@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { GET_LOCAL_STORAGE } from "./EncryptedCookies";
 import GlobalContextProvider from "./globalContext";
 import useWindowWidth from "@/hooks/windowData";
+import { Toaster } from "react-hot-toast";
 
 type Props = {
   children: any;
@@ -32,7 +33,10 @@ export default function Providers({ children }: Props) {
   return (
     <SocketProvider>
       <QueryClientProvider client={queryClient}>
-        <GlobalContextProvider>{children}</GlobalContextProvider>
+        <GlobalContextProvider>
+          <Toaster position="top-center" />
+          {children}
+        </GlobalContextProvider>
       </QueryClientProvider>
     </SocketProvider>
   );

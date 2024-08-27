@@ -12,7 +12,7 @@ export default function AvatarIcon({ src, name }: Props) {
       <AvatarImage src={src || ""} alt={"JersApp"} />
       <AvatarFallback>
         {name
-          .split(" ")
+          ?.split(" ")
           .map((chunk) => chunk[0])
           .join("")}
       </AvatarFallback>

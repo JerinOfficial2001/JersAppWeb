@@ -44,3 +44,7 @@ export const SET_LOCAL_STORAGE = (name: string, value: any) => {
 export const SET_UserData = (value: any) => {
   setEncryptedCookie("JersApp_userData", JSON.stringify(value));
 };
+export const GET_UserData = () => {
+  const cachedData = GET_LOCAL_STORAGE("JersApp_userData");
+  return cachedData;
+};

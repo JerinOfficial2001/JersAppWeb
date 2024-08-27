@@ -105,9 +105,9 @@ export function Nav({
               {link.label && (
                 <span
                   className={cn(
-                    "ml-auto",
-                    link.variant === "default" &&
-                      "text-background dark:text-white "
+                    "ml-auto"
+                    // link.variant === "default" &&
+                    //   "text-background dark:text-white "
                   )}
                 >
                   {link.label}

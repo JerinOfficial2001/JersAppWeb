@@ -15,7 +15,8 @@ export const sendMessage = async (data: any) => {
     console.error("Error sending private message:", error);
   }
 };
-export const getMessage = async (chatID: any) => {
+export const getMessage = async (id: any) => {
+  const chatID = [userData._id, id].sort().join("_");
   try {
     const response = await GET("/api/message");
 

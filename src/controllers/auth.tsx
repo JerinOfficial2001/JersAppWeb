@@ -43,6 +43,9 @@ export const AuthenticateByToken = async (token: string) => {
     if (data.status == "ok") {
       SET_UserData(data.data);
       window.location.href = "/chats";
+      return data.data;
+    } else {
+      return null;
     }
   } catch (error) {
     console.log(error, "Err at Auth by token");

@@ -10,7 +10,6 @@ const config = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
     "./node_modules/flowbite/**/*.js",
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
 	],
   prefix: "",
   theme: {
@@ -81,7 +80,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require('flowbite/plugin'), require('@nextui-org/react')],
+  plugins: [require("tailwindcss-animate"), require('flowbite/plugin')],
 } satisfies Config
 
 export default config

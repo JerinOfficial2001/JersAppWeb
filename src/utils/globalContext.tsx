@@ -61,6 +61,7 @@ export default function GlobalContextProvider({ children }: any) {
     data: Chats,
     isLoading: chatLoading,
     refetch: refetchChats,
+    isFetched: chatFetched,
   } = useQuery({
     queryFn: getAllChats,
     queryKey: ["chats"],
@@ -146,6 +147,11 @@ export default function GlobalContextProvider({ children }: any) {
         setdata(Chats);
     }
   };
+  useEffect(() => {
+    if (!data) {
+      setdata(Chats);
+    }
+  }, [chatFetched]);
 
   return (
     <GlobalContext.Provider
@@ -154,12 +160,12 @@ export default function GlobalContextProvider({ children }: any) {
         themeHandler,
         setthemeHandler,
         Chats,
-        chatLoading,
         Contacts,
-        contactsLoading,
         Groups,
-        groupsLoading,
         addChat,
+        contactsLoading,
+        chatLoading,
+        groupsLoading,
         AddChatLoading,
         refetchGroups,
         refetchChats,

@@ -94,3 +94,26 @@
     transform: rotate(360deg);
   }
 }
+:root::-webkit-scrollbar {
+  width: 8px;
+  background: gray;
+  border-radius: 10px;
+  display: none;
+}
+.chatContainer::-webkit-scrollbar {
+  width: 8px;
+  background: gray;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: #bdbdbd;
+}
+::-webkit-scrollbar-thumb:hover {
+  border-radius: 5px;
+  background: #a5a5a5;
+}
