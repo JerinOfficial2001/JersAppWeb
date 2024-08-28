@@ -9,3 +9,6 @@ export interface Contact {
 export interface Group {
   _id: string;
 }
+export interface Story {
+  _id: string;
+}

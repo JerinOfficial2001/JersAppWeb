@@ -60,10 +60,10 @@ export function Mail({
   defaultCollapsed = false,
   navCollapsedSize,
 }: MailProps) {
-  const [title, setTitle] = React.useState("Chats");
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [mail] = useMail();
-  const { Groups, Contacts, Chats, configs, data } = useGlobalContext();
+  const { Groups, Contacts, Chats, Story, configs, data, title, setTitle } =
+    useGlobalContext();
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -147,7 +147,7 @@ export function Mail({
               },
               {
                 title: "Story",
-                label: "",
+                label: Story?.length > 0 ? Story?.length : "",
                 icon: CircleFadingPlus,
                 variant: "ghost",
               },
@@ -173,8 +173,6 @@ export function Mail({
               },
             ]}
             onClick={() => {
-              console.log("clicked");
-
               Cookies.remove("JersApp_userData");
               window.location.href = "/";
             }}
@@ -210,13 +208,10 @@ export function Mail({
               </form>
             </div>
             <TabsContent value="all" className="m-0">
-              <MailList items={data} title={title} />
+              <MailList items={data} />
             </TabsContent>
             <TabsContent value="unread" className="m-0">
-              <MailList
-                title={title}
-                items={data?.filter((item: any) => !item?.read)}
-              />
+              <MailList items={data?.filter((item: any) => !item?.read)} />
             </TabsContent>
           </Tabs>
         </ResizablePanel>

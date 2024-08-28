@@ -5,7 +5,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
 import { queryClient } from "./providers";
 import { GET_LOCAL_STORAGE } from "./EncryptedCookies";
-import { useChat, useContact, useGroup } from "@/hooks/useData";
+import { useChat, useContact, useGroup, useStory } from "@/hooks/useData";
+import { GetAllStatus } from "@/controllers/story";
 
 const GlobalContext = createContext({});
 export const useGlobalContext = () => {
@@ -85,13 +86,21 @@ export default function GlobalContextProvider({ children }: any) {
     queryFn: GetGroups,
     enabled: !!userDatas,
   });
+  const {
+    data: Story,
+    refetch: refetchStory,
+    isLoading: storyLoading,
+  } = useQuery({
+    queryKey: ["story"],
+    queryFn: GetAllStatus,
+    enabled: !!userDatas,
+  });
   const { mutate: AddChat, isPending: AddChatLoading } = useMutation({
     mutationFn: addChat,
     onSuccess: (data: any) => {
       if (data.message === "already registered") {
-        //  setFocusedIdx(2);
+        setTitle("Chats");
       } else {
-        //  setFocusedIdx(0);
         queryClient.invalidateQueries({ queryKey: ["chats"] });
       }
     },
@@ -100,7 +109,9 @@ export default function GlobalContextProvider({ children }: any) {
   const [chatConfig, setChatConfig] = useChat();
   const [contactConfig, setContactConfig] = useContact();
   const [groupConfig, setGroupConfig] = useGroup();
+  const [storyConfig, setStoryConfig] = useStory();
   const [configs, setconfigs] = useState<any>(null);
+  const [title, setTitle] = useState("Chats");
 
   const handleChatSelect = (chatId: string) => {
     setChatConfig({ selected: chatId });
@@ -110,6 +121,9 @@ export default function GlobalContextProvider({ children }: any) {
   };
   const handleGroupSelect = (GroupId: string) => {
     setGroupConfig({ selected: GroupId });
+  };
+  const handleStorySelect = (StoryId: string) => {
+    setStoryConfig({ selected: StoryId });
   };
   const handleSelectID = (id: string, name: string) => {
     switch (name) {
@@ -125,6 +139,10 @@ export default function GlobalContextProvider({ children }: any) {
       case "Groups":
         handleGroupSelect(id);
         setconfigs(groupConfig);
+        break;
+      case "Story":
+        handleStorySelect(id);
+        setconfigs(storyConfig);
         break;
       default:
         handleChatSelect(id);
@@ -143,6 +161,9 @@ export default function GlobalContextProvider({ children }: any) {
       case "Groups":
         setdata(Groups);
         break;
+      case "Story":
+        setdata(Story);
+        break;
       default:
         setdata(Chats);
     }
@@ -152,6 +173,25 @@ export default function GlobalContextProvider({ children }: any) {
       setdata(Chats);
     }
   }, [chatFetched]);
+  useEffect(() => {
+    switch (title) {
+      case "Chats":
+        refetchChats();
+        break;
+      case "Contacts":
+        refetchContacts();
+
+        break;
+      case "Groups":
+        refetchGroups();
+        break;
+      case "Story":
+        refetchStory();
+        break;
+      default:
+        refetchChats();
+    }
+  }, [title]);
 
   return (
     <GlobalContext.Provider
@@ -162,18 +202,23 @@ export default function GlobalContextProvider({ children }: any) {
         Chats,
         Contacts,
         Groups,
-        addChat,
+        Story,
+        AddChat,
         contactsLoading,
         chatLoading,
         groupsLoading,
         AddChatLoading,
+        storyLoading,
         refetchGroups,
         refetchChats,
         refetchContacts,
+        refetchStory,
         handleSelectID,
         configs,
         handleSelectData,
         data,
+        title,
+        setTitle,
       }}
     >
       {children}

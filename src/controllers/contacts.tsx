@@ -17,39 +17,6 @@ export const getContactByUserId = async () => {
     return error;
   }
 };
-export const addContact = async (
-  ContactDetails: any,
-  user_id: any,
-  name: any,
-  Contact_id: any
-) => {
-  try {
-    const response = await POST("/api/contact", {
-      ContactDetails,
-      user_id,
-      name,
-      Contact_id,
-    });
-    if (response.status == "error") {
-      //   if (response.message === "already registered") {
-      //     props.navigation.navigate("Message", {
-      //       id: response.data,
-      //     });
-      //   } else {
-      //     props.navigation.navigate("Home");
-      //     return response.data;
-      //   }
-    } else {
-      if (response.status == "ok") {
-        // props.navigation.navigate("Home");
-      } else {
-        console.log(response);
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
 export const deleteContactById = async (
   sender_id: any,
   receiver_id: any,

@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { chatAtom, contactAtom, groupAtom,  } from '../state/atoms';
+import { chatAtom, contactAtom, groupAtom, storyAtom,  } from '../state/atoms';
 
 export function useChat() {
   return useAtom(chatAtom);
@@ -11,4 +11,7 @@ export function useContact() {
 
 export function useGroup() {
   return useAtom(groupAtom);
+}
+export function useStory() {
+  return useAtom(storyAtom);
 }

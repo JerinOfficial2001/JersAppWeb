@@ -18,6 +18,7 @@ export default function SocketProvider({ children }: any) {
   const [token, settoken] = useState("");
   const [activeUsers, setactiveUsers] = useState([]);
   const [isConnected, setisConnected] = useState(false);
+  const [usersInGroup, setusersInGroup] = useState([]);
   const userData = GET_LOCAL_STORAGE("JersApp_userData");
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -54,6 +55,12 @@ export default function SocketProvider({ children }: any) {
     });
     connection.on("message", (data) => {
       queryClient.invalidateQueries({ queryKey: ["message"] });
+    });
+    connection.on("new_group_msg", () => {
+      queryClient.invalidateQueries({ queryKey: ["grpmessages"] });
+    });
+    connection.on("userInGroup", (data) => {
+      setusersInGroup(data);
     });
     connection.on("receivedMsg", async (data) => {
       queryClient.invalidateQueries({ queryKey: ["message"] });
@@ -176,6 +183,11 @@ export default function SocketProvider({ children }: any) {
         handleSendMsg,
         isConnected,
         socketRommID,
+        socketSendGroupMsg,
+        socketJoinGroup,
+        socketRemoveGroup,
+        usersInGroup,
+        setusersInGroup,
       }}
     >
       {children}

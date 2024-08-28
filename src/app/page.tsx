@@ -27,6 +27,9 @@ export default function Home() {
     onSuccess: (data) => {
       handleAuthSuccess(data?._id);
     },
+    onError: (err) => {
+      console.log(err, "AUTH ");
+    },
   });
   useEffect(() => {
     if (token) {

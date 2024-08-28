@@ -11,6 +11,14 @@ const headers = userData
       },
     }
   : {};
+const multipartheaders = userData
+  ? {
+      headers: {
+        Authorization: `Bearer ${userData.accessToken}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  : {};
 
 export const GET = async (queryOrParams: any, token?: string) => {
   try {
@@ -23,17 +31,33 @@ export const GET = async (queryOrParams: any, token?: string) => {
     toast.error("Something went wrong");
   }
 };
-export const POST = async (queryOrParams: any, formData: any) => {
+export const POST = async (
+  queryOrParams: any,
+  formData: any,
+  isMultipart?: any
+) => {
   try {
-    const { data } = await axios.post(API + queryOrParams, formData, headers);
+    const { data } = await axios.post(
+      API + queryOrParams,
+      formData,
+      isMultipart ? multipartheaders : headers
+    );
     return data;
   } catch (error) {
     toast.error("Something went wrong");
   }
 };
-export const PUT = async (queryOrParams: any, formData: any) => {
+export const PUT = async (
+  queryOrParams: any,
+  formData: any,
+  isMultipart?: any
+) => {
   try {
-    const { data } = await axios.put(API + queryOrParams, formData, headers);
+    const { data } = await axios.put(
+      API + queryOrParams,
+      formData,
+      isMultipart ? multipartheaders : headers
+    );
     return data;
   } catch (error) {
     toast.error("Something went wrong");

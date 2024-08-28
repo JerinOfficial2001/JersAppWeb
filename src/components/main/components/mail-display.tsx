@@ -51,6 +51,10 @@ import { GET_UserData } from "@/utils/EncryptedCookies";
 import { sendMsg } from "@/controllers/messages";
 import { queryClient } from "@/utils/providers";
 import toast from "react-hot-toast";
+import { RemoveSfromName } from "@/utils/methods";
+import { useGlobalContext } from "@/utils/globalContext";
+import StoryCarosel from "@/components/chatComponents/StoryCarosel";
+import { GetStatusByID } from "@/controllers/story";
 
 interface MailDisplayProps {
   mail: any;
@@ -61,7 +65,16 @@ export function MailDisplay({ mail }: MailDisplayProps) {
   const [inputData, setinputData] = useState("");
   const chatID = [userData?._id, mail?.user_id].sort().join("_");
   const today = new Date();
-  const { handleSendMsg, socketRommID } = useSocket();
+  const {
+    handleSendMsg,
+    socketRommID,
+    socketRemoveGroup,
+    socketJoinGroup,
+    socketSendGroupMsg,
+    usersInGroup,
+    setusersInGroup,
+  } = useSocket();
+  const { title } = useGlobalContext();
   const scrollRef = useRef<any>();
   const {
     data: messages,
@@ -70,6 +83,16 @@ export function MailDisplay({ mail }: MailDisplayProps) {
   } = useQuery({
     queryKey: ["message"],
     queryFn: () => getMessage(mail.user_id),
+    enabled: title == "Chats",
+  });
+  const {
+    data: Story,
+    isLoading: storyLoading,
+    refetch: refetchStory,
+  } = useQuery({
+    queryKey: ["Story"],
+    queryFn: () => GetStatusByID(mail._id),
+    enabled: title == "Story" && !!mail?._id,
   });
   const { mutate: SendMsg, isPending: sending } = useMutation({
     mutationFn: sendMsg,
@@ -122,28 +145,76 @@ export function MailDisplay({ mail }: MailDisplayProps) {
       setinputData("");
     }
   };
+
+  const name = mail?.given_name
+    ? mail?.given_name
+    : mail?.phone
+    ? mail?.phone
+    : mail?.group_name
+    ? mail?.group_name
+    : mail?.userName
+    ? mail?.userName
+    : null;
+
+  //*Group
+  const [formDatas, setformDatas] = useState({
+    msg: "",
+    sender_id: userData?._id,
+    group_id: mail?._id,
+  });
+
+  const groupMembers =
+    mail && title == "Groups"
+      ? mail.members.filter((elem: any) => elem != userData._id)
+      : [];
+  const handleSubmitGroup = (e: any) => {
+    e.preventDefault();
+    if (
+      formDatas.msg !== "" &&
+      formDatas.group_id !== "" &&
+      formDatas.sender_id !== ""
+    ) {
+      socketSendGroupMsg({
+        msg: formDatas.msg,
+        sender_id: userData?._id,
+        group_id: mail?._id,
+        receivers: groupMembers,
+        name: userData?.name,
+        group_name: mail?.group_name,
+      });
+      setformDatas((prev) => ({ ...prev, msg: "" }));
+    }
+  };
+  useEffect(() => {
+    if (mail && title == "Groups") {
+      socketJoinGroup({ groupID: mail._id, userID: userData?._id });
+
+      return () => {
+        socketRemoveGroup({ groupID: mail._id, userID: userData?._id });
+      };
+    }
+  }, []);
+
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-[100vh] flex-col">
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
           {mail && (
             <div className="flex items-start gap-4 text-sm">
               <Avatar>
                 <AvatarImage
-                  alt={mail.name}
+                  alt={name}
                   src={mail.image ? mail.image.url : ""}
                 />
                 <AvatarFallback>
-                  {mail.name
+                  {name
                     .split(" ")
                     .map((chunk: any) => chunk[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
               <div className="grid gap-1">
-                <div className="font-semibold">
-                  {mail.given_name ? mail.given_name : mail.phone}
-                </div>
+                <div className="font-semibold">{name}</div>
                 <div className="line-clamp-1 text-xs cursor-pointer">
                   View Profile
                 </div>
@@ -257,82 +328,111 @@ export function MailDisplay({ mail }: MailDisplayProps) {
         </DropdownMenu>
       </div>
       <Separator />
-      {mail ? (
-        <div className="flex flex-1 flex-col overflow-y-auto max-h-[100vh]">
-          {messagesLoading ? (
-            <Loader />
-          ) : messages?.length > 0 ? (
-            <div className="p-4 text-sm overflow-y-auto max-h-[77vh] chatContainer">
-              {sections.map((data: any, index: number) => {
-                return (
-                  <div key={index}>
-                    <div className="w-[100%] flex flex-col gap-1 justify-center items-center mb-2">
-                      <h2 className="text-[#787878] font-bold">{data.title}</h2>
+      {title != "Story" ? (
+        mail ? (
+          <div className="flex flex-1 flex-col overflow-y-auto max-h-[100vh]">
+            {messagesLoading ? (
+              <Loader />
+            ) : messages?.length > 0 ? (
+              <div className="p-4 text-sm overflow-y-auto max-h-[77vh] chatContainer">
+                {sections.map((data: any, index: number) => {
+                  return (
+                    <div key={index}>
+                      <div className="w-[100%] flex flex-col gap-1 justify-center items-center mb-2">
+                        <h2 className="text-[#787878] font-bold">
+                          {data.title}
+                        </h2>
+                      </div>
+                      {data?.data.map((elem: any, msgIndex: number) => {
+                        return (
+                          <Bubble
+                            key={msgIndex}
+                            text={elem.message}
+                            name={
+                              elem.given_name ? elem.given_name : elem.phone
+                            }
+                            src={elem.image ? elem.image.url : ""}
+                            id={elem.sender}
+                            time={elem.time}
+                          />
+                        );
+                      })}
                     </div>
-                    {data?.data.map((elem: any, msgIndex: number) => {
-                      return (
-                        <Bubble
-                          key={msgIndex}
-                          text={elem.message}
-                          name={elem.given_name ? elem.given_name : elem.phone}
-                          src={elem.image ? elem.image.url : ""}
-                          id={elem.sender}
-                          time={elem.time}
-                        />
-                      );
-                    })}
-                  </div>
-                );
-              })}
-              <div ref={scrollRef} />
-            </div>
-          ) : (
-            <div className="h-[100%] p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
-              No messages
-            </div>
-          )}
-          <Separator className="mt-auto" />
-          <div className="p-4 ">
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-4 ">
-                <Textarea
-                  value={inputData}
-                  onChange={(e) => {
-                    setinputData(e.target.value);
-                  }}
-                  className="p-4 rounded-[10px]"
-                  placeholder={`Reply ${
-                    mail.given_name ? mail.given_name : mail.phone
-                  }...`}
-                />
-                <div className="flex items-center">
-                  <Label
-                    htmlFor="mute"
-                    className="flex items-center gap-2 text-xs font-normal"
-                  >
-                    <Switch id="mute" aria-label="Mute thread" /> Mute this
-                    thread
-                  </Label>
-                  <Button
-                    type="submit"
-                    size="sm"
-                    className="ml-auto rounded-[10px] flex gap-1"
-                  >
-                    {sending ? (
-                      <RefreshCw className="h-[20px] loadingBtn" />
-                    ) : (
-                      <Send className="h-[20px]" />
-                    )}{" "}
-                    Send
-                  </Button>
-                </div>
+                  );
+                })}
+                <div ref={scrollRef} />
               </div>
-            </form>
+            ) : (
+              <div className="h-[100%] p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                No messages
+              </div>
+            )}
+            <Separator className="mt-auto" />
+            <div className="p-4 ">
+              <form
+                onSubmit={title == "Groups" ? handleSubmitGroup : handleSubmit}
+              >
+                <div className="grid gap-4 ">
+                  <Textarea
+                    value={title == "Groups" ? formDatas.msg : inputData}
+                    onChange={(e) => {
+                      title == "Groups"
+                        ? setformDatas((prev) => ({
+                            ...prev,
+                            msg: e.target.value,
+                          }))
+                        : setinputData(e.target.value);
+                    }}
+                    className="p-4 rounded-[10px]"
+                    placeholder={`Reply ${
+                      mail.given_name
+                        ? mail.given_name
+                        : mail.phone
+                        ? mail.phone
+                        : ""
+                    }...`}
+                  />
+                  <div className="flex items-center">
+                    <Label
+                      htmlFor="mute"
+                      className="flex items-center gap-2 text-xs font-normal"
+                    >
+                      <Switch id="mute" aria-label="Mute thread" /> Mute this
+                      thread
+                    </Label>
+                    <Button
+                      type="submit"
+                      size="sm"
+                      className="ml-auto rounded-[10px] flex gap-1"
+                    >
+                      {sending ? (
+                        <RefreshCw className="h-[20px] loadingBtn" />
+                      ) : (
+                        <Send className="h-[20px]" />
+                      )}{" "}
+                      Send
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        ) : (
+          <div className="h-[600px] p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+            No {RemoveSfromName(title)} selected
+          </div>
+        )
+      ) : storyLoading && mail ? (
+        <Loader />
+      ) : title == "Story" && mail ? (
+        <div className="w=[100%] h-[90%] flex justify-center items-center">
+          <div className="w-[100%] h-[80%]">
+            <StoryCarosel story={Story.file} />
           </div>
         </div>
       ) : (
         <div className="h-[600px] p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
-          No chat selected
+          No story selected
         </div>
       )}
     </div>

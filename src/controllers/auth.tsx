@@ -40,11 +40,13 @@ export const register = async (Data: any, formData: any) => {
 export const AuthenticateByToken = async (token: string) => {
   try {
     const data = await GET("/api/auth/login", token);
+
     if (data.status == "ok") {
       SET_UserData(data.data);
       window.location.href = "/chats";
       return data.data;
     } else {
+      toast.error(data.message);
       return null;
     }
   } catch (error) {
