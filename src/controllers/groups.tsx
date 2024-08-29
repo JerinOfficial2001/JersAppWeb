@@ -23,7 +23,7 @@ export const GetGroups = async () => {
     return [];
   }
 };
-export const GetGroupByID = async ({ token, id, groupID }: any) => {
+export const GetGroupByID = async ({ id, groupID }: any) => {
   try {
     const data = await GET(`/api/group/getgroupbyid/${groupID}?userID=${id}`);
     if (data.status == "ok") {
@@ -33,6 +33,19 @@ export const GetGroupByID = async ({ token, id, groupID }: any) => {
     }
   } catch (error) {
     console.log("GetGroupsERR Err:", error);
+  }
+};
+export const getGroupMsg = async (id: string, groupID: string) => {
+  try {
+    const data = await GET(`/api/groupMsg?userID=${id}&groupID=${groupID}`);
+    if (data) {
+      return data.data;
+    } else {
+      toast.error(data.message);
+      return [];
+    }
+  } catch (error) {
+    console.log("getGroupMsgERR", error);
   }
 };
 export const CreateNewGroup = async ({ token, id, formData }: any) => {

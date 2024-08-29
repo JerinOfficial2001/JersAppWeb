@@ -55,6 +55,7 @@ import { RemoveSfromName } from "@/utils/methods";
 import { useGlobalContext } from "@/utils/globalContext";
 import StoryCarosel from "@/components/chatComponents/StoryCarosel";
 import { GetStatusByID } from "@/controllers/story";
+import { getGroupMsg } from "@/controllers/groups";
 
 interface MailDisplayProps {
   mail: any;
@@ -84,6 +85,15 @@ export function MailDisplay({ mail }: MailDisplayProps) {
     queryKey: ["message"],
     queryFn: () => getMessage(mail.user_id),
     enabled: title == "Chats",
+  });
+  const {
+    data: grpmessages,
+    isLoading: grpmessagesLoading,
+    refetch: refetch_grpmessages,
+  } = useQuery({
+    queryKey: ["grpmessages"],
+    queryFn: () => getGroupMsg(userData._id, mail._id),
+    enabled: title == "Groups",
   });
   const {
     data: Story,
@@ -125,10 +135,18 @@ export function MailDisplay({ mail }: MailDisplayProps) {
   const groupedMessages = groupMessagesByDate(
     messages?.map((elem: any) => ({ ...elem, time: getTime(elem.createdAt) }))
   );
-  const sections = groupedMessages
-    ? Object.keys(groupedMessages).map((date) => ({
+  const grouped_GrpMessages = groupMessagesByDate(
+    grpmessages?.map((elem: any) => ({
+      ...elem,
+      time: getTime(elem.createdAt),
+    }))
+  );
+
+  const Messages = title == "Chats" ? groupedMessages : grouped_GrpMessages;
+  const sections = Messages
+    ? Object.keys(Messages).map((date) => ({
         title: date,
-        data: groupedMessages[date],
+        data: Messages[date],
       }))
     : [];
   const handleSubmit = (e: any) => {
@@ -331,9 +349,9 @@ export function MailDisplay({ mail }: MailDisplayProps) {
       {title != "Story" ? (
         mail ? (
           <div className="flex flex-1 flex-col overflow-y-auto max-h-[100vh]">
-            {messagesLoading ? (
+            {messagesLoading || grpmessagesLoading ? (
               <Loader />
-            ) : messages?.length > 0 ? (
+            ) : messages?.length > 0 || grpmessages?.length > 0 ? (
               <div className="p-4 text-sm overflow-y-auto max-h-[77vh] chatContainer">
                 {sections.map((data: any, index: number) => {
                   return (
@@ -347,12 +365,12 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                         return (
                           <Bubble
                             key={msgIndex}
-                            text={elem.message}
+                            text={elem.message || elem.msg}
                             name={
                               elem.given_name ? elem.given_name : elem.phone
                             }
                             src={elem.image ? elem.image.url : ""}
-                            id={elem.sender}
+                            id={elem.sender || elem.sender_id}
                             time={elem.time}
                           />
                         );

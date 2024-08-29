@@ -78,14 +78,10 @@ export default function Home() {
   const [isClient, setisClient] = useState(false);
   useEffect(() => {
     setisClient(true);
-    return () => {
-      setisClient(false);
-    };
   }, []);
 
   return (
     <>
-      {" "}
       {isClient && (
         <div
           style={{

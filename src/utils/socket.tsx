@@ -48,6 +48,8 @@ export default function SocketProvider({ children }: any) {
       toast.error("offline");
     });
     connection.on("webAuthToken", (data) => {
+      console.log(data, "TokenReceived");
+
       settoken(data);
     });
     connection.on("user_connected", (data) => {

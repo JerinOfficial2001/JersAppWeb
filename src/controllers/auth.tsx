@@ -4,7 +4,8 @@ import { GET_LOCAL_STORAGE, SET_UserData } from "@/utils/EncryptedCookies";
 import toast from "react-hot-toast";
 
 const userData = GET_LOCAL_STORAGE("JersApp_userData");
-export const login = async (mobNum: number, password: string) => {
+export const login = async (formData: any) => {
+  const { mobNum, password } = formData;
   try {
     const data = await POST("/api/auth/login", { mobNum, password });
     if (data.status === "ok") {
@@ -13,9 +14,9 @@ export const login = async (mobNum: number, password: string) => {
       if (userData) {
         if (userData.status === "ok") {
           SET_UserData(userData.data);
-          window.location.href = "/homepg";
+          window.location.href = "/chats";
         } else {
-          console.error("Error:", userData.data);
+          toast.error(userData.data);
         }
         return userData;
       }
