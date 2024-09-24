@@ -11,7 +11,29 @@ export const useSocket = () => {
   const socket = useContext(SocketContext);
   return socket;
 };
+const getBrowserName = () => {
+  const userAgent = navigator.userAgent;
+  let browserName = "Unknown";
 
+  if (userAgent.indexOf("Edg") > -1) {
+    browserName = "edge";
+  } else if (userAgent.indexOf("Chrome") > -1) {
+    browserName = "chrome";
+  } else if (userAgent.indexOf("Firefox") > -1) {
+    browserName = "firefox";
+  } else if (userAgent.indexOf("Safari") > -1) {
+    browserName = "safari";
+  } else if (
+    userAgent.indexOf("MSIE") > -1 ||
+    userAgent.indexOf("Trident") > -1
+  ) {
+    browserName = "Internet Explorer";
+  } else if (userAgent.indexOf("Edge") > -1) {
+    browserName = "explorer";
+  }
+
+  return browserName;
+};
 export default function SocketProvider({ children }: any) {
   const [socket, setsocket] = useState<any>(null);
   const [socketID, setsocketID] = useState<any>(null);
@@ -20,6 +42,7 @@ export default function SocketProvider({ children }: any) {
   const [isConnected, setisConnected] = useState(false);
   const [usersInGroup, setusersInGroup] = useState([]);
   const userData = GET_LOCAL_STORAGE("JersApp_userData");
+  const [appSocketID, setappSocketID] = useState("");
   useEffect(() => {
     if (typeof window === "undefined") return;
     const connection = io(Socket_URL || "", {
@@ -48,9 +71,8 @@ export default function SocketProvider({ children }: any) {
       toast.error("offline");
     });
     connection.on("webAuthToken", (data) => {
-      console.log(data, "TokenReceived");
-
-      settoken(data);
+      settoken(data.token);
+      setappSocketID(data.socket_id);
     });
     connection.on("user_connected", (data) => {
       setactiveUsers(data);
@@ -115,8 +137,16 @@ export default function SocketProvider({ children }: any) {
       }
     };
   }, []);
-  const handleAuthSuccess = (data: any) => {
-    socket?.emit("authenticated", data);
+  const handleAuthSuccess = (id: any, data: any) => {
+    const browser_name = getBrowserName();
+    socket?.emit("authenticated", {
+      userID: id,
+      session_data: {
+        imageType: browser_name,
+        socket_id: socketID,
+      },
+      id: appSocketID,
+    });
   };
   const handleSendMsg = (data: any) => {
     socket?.emit("message", data);

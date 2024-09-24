@@ -35,6 +35,8 @@ export const getAllChats = async () => {
       toast.error("Failed to load");
       return error;
     }
+  } else {
+    return [];
   }
 };
 export const addChat = async (id: any) => {
